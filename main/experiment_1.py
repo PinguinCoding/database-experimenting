@@ -1,4 +1,5 @@
 import sqlite3
+import collections
 
 
 class Person(object):
@@ -20,6 +21,8 @@ class Person(object):
         ) 
         """)
 
+        self.person = collections.namedtuple('Person', ['id', 'first', 'last', 'age'])
+
     def insert_person(self) -> None:
         self.cursor.execute("""
         INSERT INTO persons VALUES
@@ -27,19 +30,12 @@ class Person(object):
         """.format(self.id_number, self.first_name, self.last_name, self.age))
         self.connection.commit()
 
-    def load_person(self, id_number: int) -> None:
-        # Implementar tupla nomeada
+    def load_person(self, id_number: int) -> collections.namedtuple:
         self.cursor.execute("""
         SELECT * FROM persons
         WHERE id = {}
         """.format(id_number))
-
-        results = self.cursor.fetchone()
-
-        self.id_number = id_number
-        self.first_name = results[1]
-        self.last_name = results[2]
-        self.age = results[3]
+        return self.person(*self.cursor.fetchone())
 
 
 p1 = Person(1, 'Alex', 'Smith', 32)
@@ -48,13 +44,6 @@ p2 = Person(2, 'Anna', 'John', 43)
 p2.insert_person()
 
 p = Person()
-p.load_person(1)
-print(p.id_number)
-print(p.first_name)
-print(p.last_name)
-print(p.age)
-p.load_person(2)
-print(p.id_number)
-print(p.first_name)
-print(p.last_name)
-print(p.age)
+print(p.load_person(1))
+print(p.load_person(2))
+
